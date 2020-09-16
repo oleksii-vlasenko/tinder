@@ -11,6 +11,8 @@ public class App {
         handler.addServlet(UsersServlet.class, "/users");
         handler.addServlet(IndexServlet.class, "/index");
         handler.addServlet(LikedServlet.class, "/liked");
+        handler.addServlet(MessageServlet.class, "/message/*");
+
         handler.addServlet(AnyFileServlet.class, "/css/*");
         handler.addServlet(AnyFileServlet.class, "/js/*");
 

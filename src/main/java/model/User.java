@@ -4,20 +4,19 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class User {
+    private static int nextId = 0;
 
+    private int id;
     private String name;
     private String image;
     private TreeSet<Integer> likes;
 
 
     public User(String name, String image) {
+        this.id = nextId++;
         this.name = name;
         this.image = image;
-        this.likes = new TreeSet<>(){{
-            add(1);
-            add(3);
-            add(4);
-        }};
+        this.likes = new TreeSet<>();
     }
 
     public String getName() {
@@ -32,7 +31,11 @@ public class User {
         return likes;
     }
 
-    public void addLike(int id, boolean like) {
+    public int getId() {
+        return this.id;
+    }
+
+    public void addLike(int id) {
         this.likes.add(id);
     }
 }

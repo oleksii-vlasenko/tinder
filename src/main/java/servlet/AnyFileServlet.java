@@ -18,7 +18,7 @@ public class AnyFileServlet extends HttpServlet {
         try (ServletOutputStream outputStream = resp.getOutputStream()) {
             String rqName =req.getRequestURI();
             Path fileName = Paths.get(rqName);
-            Path rs =Paths.get(this.getClass().getClassLoader().getResource(fileName.toString()).toURI());
+            Path rs = Paths.get(this.getClass().getClassLoader().getResource(fileName.toString()).toURI());
             Files.copy(rs, outputStream);
         } catch (URISyntaxException e) {
             resp.setStatus(400);
