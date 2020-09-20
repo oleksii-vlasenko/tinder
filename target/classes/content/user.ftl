@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="img/favicon.ico">
 
     <title>Like page</title>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css"
@@ -15,7 +14,7 @@
           integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 
     <!-- Custom styles for this template -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body style="background-color: #f5f5f5;">
 
@@ -29,16 +28,16 @@
                     <br>
                 </div>
                 <div class="col-12 col-lg-6">
-                    <button value="no"
+                    <button value=${id}
                             type="submit"
-                            name="like"
+                            name="dislike"
                             class="btn btn-outline-danger btn-block">
                         <span class="fa fa-times"></span> Dislike
                     </button>
                 </div>
                 <div class="col-12 col-lg-6">
                     <button type="submit"
-                            value="yes"
+                            value=${id}
                             name="like"
                             class="btn btn-outline-success btn-block">
                         <span class="fa fa-heart"></span> Like

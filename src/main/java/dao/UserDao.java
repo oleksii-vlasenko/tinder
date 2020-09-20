@@ -7,12 +7,10 @@ import java.util.Optional;
 
 public interface UserDao {
 
-    ArrayList<User> getUsers();
-    Optional<User> getUser(int id);
-    boolean deleteUser(User user);
-    Optional<User> deleteUser(int id);
-    boolean saveUser(User user);
-    int getSize();
+    Optional<Boolean> save(User user);
 
-    boolean load();
+    Optional<ArrayList<User>> getUsers();
+    Optional<User> getUser(int id);
+
+    Optional<User> updateUser(User user);
 }

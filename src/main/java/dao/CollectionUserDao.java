@@ -1,53 +1,132 @@
 package dao;
 
 import model.User;
+import sql.Conn;
 
+import java.sql.Array;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-public class CollectionUserDao implements UserDao{
+import static java.util.Arrays.stream;
 
-    private static final ArrayList<User> users = new ArrayList<>(){{
-        add(new User("Adam", "https://upload.wikimedia.org/wikipedia/commons/a/ab/Cat_black.svg"));
-        add(new User("Brian", "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Cat_silhouette.svg/1200px-Cat_silhouette.svg.png"));
-        add(new User("Carl", "https://upload.wikimedia.org/wikipedia/commons/2/27/Black_Cat_02812_svg_vector_nevit.svg"));
-        add(new User("Drake", "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Julius_the_Cat.svg/1027px-Julius_the_Cat.svg.png"));
-        add(new User("Earl", "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Black_Cat_Vector.svg/1200px-Black_Cat_Vector.svg.png"));
-        add(new User("Fry", "https://i.pinimg.com/originals/ae/1e/d9/ae1ed91ec5d4db8efd9d4a9d10754fdd.png"));
-    }};
+public class CollectionUserDao implements UserDao {
+
+    static final String GET_ALL_USERS = "SELECT * FROM users";
+    static final String ADD_USER = "INSERT INTO users(id, name, image, likes) VALUES (DEFAULT, ?, ?, ?);";
+    static final String GET_USER_BY_ID = "SELECT * FROM users WHERE id = ?;";
+    static final String UPDATE_USER = "UPDATE users SET name = ?, image = ?, likes = ?, dislikes = ? where id = ?;";
 
     @Override
-    public ArrayList<User> getUsers() {
-        return users;
+    public Optional<Boolean> save(User user) {
+        return Conn.get().flatMap(conn -> {
+            try {
+                PreparedStatement stmt = conn.prepareStatement(ADD_USER);
+                stmt.setString(1, user.getName());
+                stmt.setString(2, user.getImage());
+                stmt.setArray(3, conn.createArrayOf("integer", user.getLikes().toArray()));
+                stmt.execute();
+                return Optional.of(true);
+            } catch (SQLException e) {
+                return Optional.empty();
+            }
+        });
     }
 
     @Override
-    public Optional<User> getUser(int id) {
-        return Optional.of(users.get(id));
+    public Optional<ArrayList<User>> getUsers() {
+        return Conn.get().flatMap(conn -> {
+            try {
+                PreparedStatement preparedStatement = conn.prepareStatement(GET_ALL_USERS);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                ArrayList<User> users = new ArrayList<>();
+                while (resultSet.next()) {
+                    int id = resultSet.getInt("id");
+                    String name = resultSet.getString("name");
+                    String image = resultSet.getString("image");
+                    Array likesArr = resultSet.getArray("likes");
+                    Set<Integer> likes = stream((Object[]) likesArr.getArray())
+                            .map(Object::toString)
+                            .map(Integer::parseInt)
+                            .collect(Collectors.toSet());
+
+                    Array dislikesArr = resultSet.getArray("dislikes");
+                    Set<Integer> dislikes = stream((Object[]) dislikesArr.getArray())
+                            .map(Object::toString)
+                            .map(Integer::parseInt)
+                            .collect(Collectors.toSet());
+
+                    User user = new User(name, image, likes, dislikes);
+                    user.setId(id);
+
+                    users.add(user);
+                }
+                return Optional.of(users);
+            } catch (SQLException ex) {
+                return Optional.empty();
+            }
+        });
     }
 
     @Override
-    public boolean deleteUser(User user) {
-        return users.remove(user);
+    public Optional<User> getUser(int userId) {
+        return Conn.get().flatMap(conn -> {
+            try {
+                PreparedStatement preparedStatement = conn.prepareStatement(GET_USER_BY_ID);
+                preparedStatement.setInt(1, userId);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                int id;
+                String name;
+                String image;
+                Set<Integer> likes;
+                Set<Integer> dislikes;
+                if(resultSet.next()) {
+                    id = resultSet.getInt("id");
+                    name = resultSet.getString("name");
+                    image = resultSet.getString("image");
+
+                    Array likesArr = resultSet.getArray("likes");
+                    likes = stream((Object[]) likesArr.getArray())
+                            .map(Object::toString)
+                            .map(Integer::parseInt)
+                            .collect(Collectors.toSet());
+
+                    Array dislikesArr = resultSet.getArray("dislikes");
+                    dislikes = stream((Object[]) dislikesArr.getArray())
+                            .map(Object::toString)
+                            .map(Integer::parseInt)
+                            .collect(Collectors.toSet());
+                    User user = new User(name, image, likes, dislikes);
+                    user.setId(id);
+                    return Optional.of(user);
+                }
+                return Optional.empty();
+            } catch (SQLException ex) {
+                return Optional.empty();
+            }
+        });
     }
 
-    @Override
-    public Optional<User> deleteUser(int id) {
-        return Optional.of(users.remove(id));
-    }
 
     @Override
-    public boolean saveUser(User user) {
-        return users.add(user);
-    }
-
-    @Override
-    public boolean load() {
-        return false;
-    }
-
-    @Override
-    public int getSize() {
-        return users.size();
+    public Optional<User> updateUser(User user) {
+        return Conn.get().flatMap(conn -> {
+            try {
+                PreparedStatement preparedStatement = conn.prepareStatement(UPDATE_USER);
+                preparedStatement.setString(1, user.getName());
+                preparedStatement.setString(2, user.getImage());
+                preparedStatement.setArray(3, conn.createArrayOf("integer", user.getLikes().toArray()));
+                preparedStatement.setArray(4, conn.createArrayOf("integer", user.getDislikes().toArray()));
+                preparedStatement.setInt(5, (int) user.getId());
+                preparedStatement.execute();
+                return Optional.of(user);
+            } catch (SQLException ex) {
+                return Optional.empty();
+            }
+        });
     }
 }

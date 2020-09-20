@@ -2,74 +2,59 @@ package servlet;
 
 ;
 
-import dao.CollectionUserDao;
-import model.User;
+import controller.UserController;
 import util.TemplateEngine;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.io.IOException;
 
-import java.io.OutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 public class UsersServlet extends HttpServlet {
 
-    private Integer currUserIndex = 0;
-    private final CollectionUserDao users = new CollectionUserDao();
+    private final UserController controller;
+    private final int id;
 
-//    @Override
-//    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-//        try (OutputStream os = resp.getOutputStream()) {
-//            URI uri = this.getClass().getClassLoader().getResource("index.html").toURI();
-//            Path path = Paths.get(uri);
-//            Files.copy(path, os);
-//        } catch (URISyntaxException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
+    public UsersServlet(UserController userController, int id) {
+        this.controller = userController;
+        this.id = id;
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-        if (currUserIndex + 1 == users.getSize()) {
-            resp.sendRedirect("/liked");
-        } else {
-            TemplateEngine engine = TemplateEngine.resources("/content");
-            HashMap<String, Object> data = new HashMap<>();
-
-            String userName = users.getUser(currUserIndex)
-                    .map(User::getName)
-                    .orElse("Unknown user");
-            String userImage = users.getUser(currUserIndex)
-                    .map(User::getImage)
-                    .orElse("");
-            data.put("name", userName);
-            data.put("image", userImage);
-            engine.render("user.ftl", data, resp);
-        }
+        controller.getActual(this.id)
+                .filter(s -> s.size() > 0)
+                .map(r -> {
+                    TemplateEngine engine = TemplateEngine.resources("/content");
+                    HashMap<String, Object> data = new HashMap<>();
+                    data.put("name", r.get(0).getName());
+                    data.put("image", r.get(0).getImage());
+                    data.put("id", r.get(0).getId());
+                    System.out.println(r.get(0));
+                    engine.render("user.ftl", data, resp);
+                    return r;
+                })
+                .orElseGet(() -> {
+                    try{
+                        resp.sendRedirect("/liked");
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    return new ArrayList<>();
+                });
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Optional<String> like = Optional.of(req.getParameter("like"));
-        users.getUser(currUserIndex)
-                .filter(u -> like
-                        .filter(l -> l.equals("yes"))
-                        .isPresent()
-                )
-                .ifPresent(r -> r.addLike(3));
-        currUserIndex = currUserIndex == users.getSize() - 1 ? currUserIndex : currUserIndex + 1;
+        Optional.ofNullable(req.getParameter("like")).ifPresent(s -> {
+            controller.addLike(this.id, Integer.parseInt(s));
+        });
+        Optional.ofNullable(req.getParameter("dislike")).ifPresent(s -> {
+            controller.addDislike(this.id, Integer.parseInt(s));
+        });
         resp.sendRedirect("/users");
     }
 }
