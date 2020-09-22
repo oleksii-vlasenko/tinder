@@ -24,7 +24,7 @@
         <label for="inputName" class="sr-only">Name</label>
         <input id="inputName" type="text" name="name" class="form-control" placeholder="Your name" required autofocus>
         <label for="inputPhoto" class="sr-only">Photo</label>
-        <input name="image" type="password" id="inputPhoto" class="form-control" placeholder="Your photo" required>
+        <input name="image" type="text" id="inputPhoto" class="form-control" placeholder="Your photo" required>
         <button style="width: 49%" class="btn btn-lg btn-primary" type="submit">Create</button>
         <button style="width: 49%" class="btn btn-lg btn-primary">Cancel</button>
         <p class="mt-5 mb-3 text-muted">&copy; Tinder 2020</p>
