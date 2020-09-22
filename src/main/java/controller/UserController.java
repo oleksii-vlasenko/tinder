@@ -2,7 +2,6 @@ package controller;
 
 import dao.CollectionUserDao;
 import model.User;
-import service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,26 +10,26 @@ import java.util.stream.Collectors;
 
 public class UserController {
 
-    private final UserService userService;
+    private final CollectionUserDao collectionUserDao;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public UserController(CollectionUserDao collectionUserDao) {
+        this.collectionUserDao = collectionUserDao;
     }
 
-    public Optional<Boolean> save(User user) {
-        return this.userService.save(user);
+    public Optional<Integer> save(User user) {
+        return this.collectionUserDao.save(user);
     }
 
     public Optional<ArrayList<User>> getAll() {
-        return this.userService.getUsers();
+        return this.collectionUserDao.getUsers();
     }
 
     public Optional<User> get(int id) {
-        return this.userService.getUser(id);
+        return this.collectionUserDao.getUser(id);
     }
 
     public Optional<User> update(User user) {
-        return this.userService.updateUser(user);
+        return this.collectionUserDao.updateUser(user);
     }
 
     public Optional<List<User>> getActual(int id) {

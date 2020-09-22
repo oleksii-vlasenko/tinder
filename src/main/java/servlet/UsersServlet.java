@@ -3,6 +3,7 @@ package servlet;
 ;
 
 import controller.UserController;
+import model.Auth;
 import util.TemplateEngine;
 
 import javax.servlet.ServletException;
@@ -16,16 +17,16 @@ import java.util.*;
 public class UsersServlet extends HttpServlet {
 
     private final UserController controller;
-    private final int id;
+    private final Auth auth;
 
-    public UsersServlet(UserController userController, int id) {
+    public UsersServlet(UserController userController, Auth auth) {
         this.controller = userController;
-        this.id = id;
+        this.auth = auth;
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        controller.getActual(this.id)
+        controller.getActual(this.auth.getUser_id())
                 .filter(s -> s.size() > 0)
                 .map(r -> {
                     TemplateEngine engine = TemplateEngine.resources("/content");
@@ -50,10 +51,10 @@ public class UsersServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Optional.ofNullable(req.getParameter("like")).ifPresent(s -> {
-            controller.addLike(this.id, Integer.parseInt(s));
+            controller.addLike(this.auth.getUser_id(), Integer.parseInt(s));
         });
         Optional.ofNullable(req.getParameter("dislike")).ifPresent(s -> {
-            controller.addDislike(this.id, Integer.parseInt(s));
+            controller.addDislike(this.auth.getUser_id(), Integer.parseInt(s));
         });
         resp.sendRedirect("/users");
     }

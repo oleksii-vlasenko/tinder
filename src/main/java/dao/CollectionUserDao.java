@@ -17,20 +17,26 @@ import static java.util.Arrays.stream;
 public class CollectionUserDao implements UserDao {
 
     static final String GET_ALL_USERS = "SELECT * FROM users";
-    static final String ADD_USER = "INSERT INTO users(id, name, image, likes) VALUES (DEFAULT, ?, ?, ?);";
+    static final String ADD_USER = "INSERT INTO users(id, name, image, likes, dislikes) VALUES (DEFAULT, ?, ?, ?, ?) RETURNING id;";
     static final String GET_USER_BY_ID = "SELECT * FROM users WHERE id = ?;";
-    static final String UPDATE_USER = "UPDATE users SET name = ?, image = ?, likes = ?, dislikes = ? where id = ?;";
+    static final String UPDATE_USER = "UPDATE users SET name = ?, image = ?, likes = ?, dislikes = ? WHERE id = ?;";
 
     @Override
-    public Optional<Boolean> save(User user) {
+    public Optional<Integer> save(User user) {
         return Conn.get().flatMap(conn -> {
             try {
                 PreparedStatement stmt = conn.prepareStatement(ADD_USER);
                 stmt.setString(1, user.getName());
                 stmt.setString(2, user.getImage());
                 stmt.setArray(3, conn.createArrayOf("integer", user.getLikes().toArray()));
+                stmt.setArray(4, conn.createArrayOf("integer", user.getDislikes().toArray()));
                 stmt.execute();
-                return Optional.of(true);
+                ResultSet rs = stmt.getResultSet();
+                int id = 0;
+                if (rs.next()) {
+                    id = rs.getInt(1);
+                }
+                return Optional.of(id);
             } catch (SQLException e) {
                 return Optional.empty();
             }
@@ -84,7 +90,7 @@ public class CollectionUserDao implements UserDao {
                 String image;
                 Set<Integer> likes;
                 Set<Integer> dislikes;
-                if(resultSet.next()) {
+                if (resultSet.next()) {
                     id = resultSet.getInt("id");
                     name = resultSet.getString("name");
                     image = resultSet.getString("image");

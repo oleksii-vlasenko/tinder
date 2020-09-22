@@ -24,11 +24,14 @@ public class MessageController {
     public Optional<List<Message>> getUserMessages(int sendId, int receiveId) {
         return this.messageService.getUserMessages(sendId, receiveId)
                 .map(l ->
-                        l.stream().map(m -> {
-                            m.setMarker(m.getSend() == sendId ? -1 : 0);
-                            return m;
-                        })
-                                .sorted((a, b) -> (int) (a.getDate() - b.getDate()))
+                        l.stream()
+                                .peek(m -> {
+                                    m.setMarker(m.getSend() == sendId ? -1 : 0);
+                                })
+                                .sorted((a, b) ->
+                                        a.getDate() != b.getDate()
+                                                ? (int) (a.getDate() - b.getDate())
+                                                : (a.getId() - b.getId()))
                                 .collect(Collectors.toList()));
     }
 }

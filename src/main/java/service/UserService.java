@@ -15,7 +15,7 @@ public class UserService {
         this.collectionUserDao = collectionUserDao;
     }
 
-    public Optional<Boolean> save(User user) {
+    public Optional<Integer> save(User user) {
         return this.collectionUserDao.save(user);
     }
 

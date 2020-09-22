@@ -2,6 +2,7 @@ package servlet;
 
 import controller.UserController;
 import dao.CollectionUserDao;
+import model.Auth;
 import model.User;
 import util.TemplateEngine;
 
@@ -19,11 +20,11 @@ import java.util.List;
 public class LikedServlet extends HttpServlet {
 
     private final UserController controller;
-    private final int id;
+    private final Auth auth;
 
-    public LikedServlet(UserController controller, int id) {
+    public LikedServlet(UserController controller, Auth auth) {
         this.controller = controller;
-        this.id = id;
+        this.auth = auth;
     }
 
     @Override
@@ -31,7 +32,7 @@ public class LikedServlet extends HttpServlet {
         TemplateEngine engine = TemplateEngine.resources("/content");
         HashMap<String, Object> data = new HashMap<>();
         List<User> likedList = new ArrayList<>();
-        controller.getLiked(this.id).ifPresent(likedList::addAll);
+        controller.getLiked(this.auth.getUser_id()).ifPresent(likedList::addAll);
         data.put("users", likedList);
         engine.render("like-page.ftl", data, resp);
     }

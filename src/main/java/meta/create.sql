@@ -25,8 +25,11 @@ create table authentications
     id serial not null
         constraint authentications_pk
             primary key,
-    user_id int not null,
     login varchar not null,
-    password varchar not null
+    password varchar not null,
+    "user" int not null
 );
+
+create unique index authentications_email_uindex
+    on authentications (email);
 

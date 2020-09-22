@@ -54,7 +54,7 @@ public class CollectionMessageDao implements MessageDao {
                     int send = resultSet.getInt("send");
                     int receive = resultSet.getInt("receive");
                     String text = resultSet.getString("text");
-                    long time = resultSet.getTime("time").getTime();
+                    long time = resultSet.getDate("time").getTime();
 
                     messages.add(new Message(id, send, receive, text, time));
                 }
