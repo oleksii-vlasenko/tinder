@@ -18,7 +18,7 @@
 </head>
 
 <body class="text-center">
-    <form action="user" method="POST" class="form-signin">
+    <form action="user?id=${id}" method="POST" class="form-signin">
         <img class="mb-4" src="https://tinder.com/static/tinder.png" alt="" width="72" height="72">
         <h1 class="h3 mb-3 font-weight-normal">About you</h1>
         <label for="inputName" class="sr-only">Name</label>

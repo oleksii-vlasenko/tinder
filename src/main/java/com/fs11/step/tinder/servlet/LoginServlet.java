@@ -1,8 +1,8 @@
 package com.fs11.step.tinder.servlet;
 
 import com.fs11.step.tinder.controller.AuthController;
-import com.fs11.step.tinder.model.Auth;
 import com.fs11.step.tinder.util.TemplateEngine;
+import com.fs11.step.tinder.util.TinderCookie;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -15,18 +15,17 @@ import java.util.Optional;
 
 public class LoginServlet extends HttpServlet {
 
-    private final String COOKIE_NAME = "user";
-
     private final AuthController controller;
-    private final Auth auth;
 
-    public LoginServlet(AuthController aController, Auth auth) {
+    public LoginServlet(AuthController aController) {
         this.controller = aController;
-        this.auth = auth;
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        TinderCookie.removeCookie(resp);
+
         TemplateEngine engine = TemplateEngine.resources("/content");
         engine.render("login.ftl", new HashMap<>(), resp);
     }
@@ -37,35 +36,32 @@ public class LoginServlet extends HttpServlet {
         Optional<String> email = Optional.ofNullable(req.getParameter("email"));
         Optional<String> password = Optional.ofNullable(req.getParameter("password"));
 
-        email.flatMap(e ->
+        Optional<Integer> authId = email.flatMap(e ->
                 password
                         .flatMap(p -> this.controller.check(e, p))
-        ).ifPresent(auth::setId);
+        );
 
-        int id = req.getParameter("first") == null
-                ? this.auth.getId() == 0 ? 0 : this.controller.checkUser(this.auth.getId()).orElse(-1)
-                : this.controller.checkEmail(email.orElse("")).orElse(false) ? 0 : -1;
 
-        switch (id) {
+        Optional<Integer> id = authId.map(ai -> req.getParameter("first") == null
+                ? ai == 0 ? 0 : this.controller.checkUser(ai).orElse(-1)
+                : this.controller.checkEmail(email.orElse("")).orElse(false) ? 0 : -1);
+
+        switch (id.orElse(0)) {
             case -1:
-                Optional.of(this.auth.getId()).filter(a -> a == 0)
+                int newAuth = authId.filter(a -> a == 0)
                         .flatMap(f ->
                                 email.flatMap(e ->
                                         password.flatMap(p ->
-                                                this.controller.create(e, p))))
-                        .ifPresent(this.auth::setId);
-                resp.sendRedirect("/user");
+                                                this.controller.create(e, p)))).orElse(0);
+                TinderCookie.removeCookie(resp);
+                resp.sendRedirect("/user?id=" + newAuth);
                 break;
             case 0:
                 resp.sendRedirect("/login");
                 break;
             default:
-                this.controller.checkUser(this.auth.getId()).ifPresent(userId -> {
-                    this.auth.setUser_id(userId);
-                    Cookie cookie = new Cookie(COOKIE_NAME, String.valueOf(id));
-                    cookie.setPath("/");
-                    cookie.setMaxAge(-1);
-                    resp.addCookie(cookie);
+                this.controller.checkUser(authId.get()).ifPresent(userId -> {
+                    TinderCookie.addCookie(resp, id.get());
                 });
                 resp.sendRedirect("/users");
         }

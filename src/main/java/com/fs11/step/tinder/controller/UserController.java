@@ -48,23 +48,23 @@ public class UserController {
                         .collect(Collectors.toList()));
     }
 
-    public boolean addLike(int userId, int id) {
-        return this.get(userId).map(u -> {
+    public void addLike(int userId, int id) {
+        this.get(userId).map(u -> {
             u.addLike(id);
             this.update(u);
             return u;
-        }).isPresent();
+        });
     }
 
-    public boolean addDislike(int userId, int id) {
-        return this.get(userId).map(u -> {
+    public void addDislike(int userId, int id) {
+        this.get(userId).map(u -> {
             u.addDislike(id);
             this.update(u);
             return u;
-        }).isPresent();
+        });
     }
 
-    public Optional<List<User>> getLiked(int id) {
+    public List<User> getLiked(int id) {
         return this.getAll().map(l ->
                 l.stream()
                         .filter(y -> y.getId() != id)
@@ -73,7 +73,7 @@ public class UserController {
                                         .getLikes()
                                         .contains(u.getId()))
                                         .orElse(false))
-                        .collect(Collectors.toList()));
+                        .collect(Collectors.toList())).orElse(new ArrayList<>());
     }
 
     public Optional<Integer> getSize(int id) {
