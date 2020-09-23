@@ -45,10 +45,7 @@ public class UserServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        Optional<Integer> authId = Optional.ofNullable(req.getParameter("id")).map(r -> {
-            System.out.println(r);
-            return Integer.parseInt(r);
-        });
+        Optional<Integer> authId = Optional.ofNullable(req.getParameter("id")).map(Integer::parseInt);
 
         Optional.ofNullable(req.getParameter("name"))
                 .flatMap(n -> Optional.ofNullable(req.getParameter("image"))

@@ -55,6 +55,7 @@ public class SQLUserDao implements UserDao {
                     String name = resultSet.getString("name");
                     String image = resultSet.getString("image");
                     Array likesArr = resultSet.getArray("likes");
+
                     Set<Integer> likes = stream((Object[]) likesArr.getArray())
                             .map(Object::toString)
                             .map(Integer::parseInt)

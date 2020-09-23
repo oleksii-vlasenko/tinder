@@ -15,9 +15,9 @@ public class Conn {
 
     public static Optional<Connection> get() {
         return get(
-                "jdbc:postgresql://localhost:5432/step",
-                "postgres",
-                "admin"
+                "jdbc:postgresql://ec2-23-23-242-234.compute-1.amazonaws.com:5432/d71i2s271ho0re",
+                "ctybnljlycbvrf",
+                "36cfa5cced2e1bb72b23464dc7e80f766244732cf666ac7ea9595c7fb0c7ff89"
         );
     }
 }

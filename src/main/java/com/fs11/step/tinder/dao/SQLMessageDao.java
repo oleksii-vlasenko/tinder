@@ -14,11 +14,6 @@ public class SQLMessageDao implements MessageDao {
     static final String FORMAT_GET_USER_MESSAGES = "SELECT * FROM messages WHERE (send = %d AND receive = %d) OR (send = %d AND receive = %d);";
     static final String UPDATE_MESSAGE = "UPDATE users SET name = ?, image = ?, likes = ?, dislikes = ? where id = ?;";
 
-    public static void main(String[] args) {
-        SQLMessageDao SQLMessageDao = new SQLMessageDao();
-        SQLMessageDao.getMessages(1, 2).ifPresent(l -> l.forEach(System.out::println));
-    }
-
     public Optional<ArrayList<Message>> getMessages(int id, int resp) {
         String req = String.format(FORMAT_GET_USER_MESSAGES, id, resp, resp, id);
         return getMessages(req);
