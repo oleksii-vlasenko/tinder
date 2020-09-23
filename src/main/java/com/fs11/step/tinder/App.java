@@ -22,7 +22,7 @@ public class App {
     private static final AuthController aController = new AuthController(new SQLAuthDao());
 
     public static void main(String[] args) throws Exception {
-        Server server = new Server(8080);
+        Server server = new Server(Env.port());
         ServletContextHandler handler = new ServletContextHandler();
 
         handler.addServlet(new ServletHolder(new UsersServlet(uController)), "/users");
