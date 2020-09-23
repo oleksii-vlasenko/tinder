@@ -1,1 +1,1 @@
-web: java $JAVA_OPTS -cp ./target/classes/com/fs11/step/tinder/App
+web: java $JAVA_OPTS -cp ./target/classes:target/deps/* com/fs11/step/tinder/App
